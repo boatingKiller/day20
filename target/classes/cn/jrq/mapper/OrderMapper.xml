@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.jrq.mapper.OrderMapper">
+
+    <select id="selectHighestOrder" resultType="cn.jrq.domain.Order">
+        select *
+        from t_order
+        where salePrice = #{salePrice}
+    </select>
+    <select id="selectHighestSale" resultType="BigDecimal">
+        select MAX(salePrice)
+        from t_order
+        where dateTime like concat('%', #{dateTime}, '%')
+    </select>
+
+    <select id="listAll" resultType="Order">
+        select *
+        from t_order
+    </select>
+    <select id="queryByDate" resultType="cn.jrq.vo.EmpVo">
+        select e.id, e.empName, SUM(salePrice) as sum
+        from t_order o
+            left join t_emp e
+        on o.emp_id = e.id
+        where o.dateTime = #{dateTime}
+        group by e.id
+    </select>
+    <select id="queryUserSale" resultType="cn.jrq.vo.UserVo">
+        select u.userName, SUM(salePrice) '消费'
+        from t_order o
+                 left join t_user u on u.id = o.user_id
+        group by u.userName
+    </select>
+    <select id="queryUserEmpRelation" resultType="cn.jrq.vo.UserEmpVo">
+        select u.userName, e.empName, SUM(salePrice) '销售额'
+        from t_user u
+                 left join t_order o on u.id = o.user_id
+                 left join t_emp e on e.id = o.emp_id
+        group by u.userName, empName
+    </select>
+</mapper>
